@@ -15,11 +15,10 @@ Chromium browsers (Edge / Chrome / Brave) — not Firefox or Safari.
 2. Each key card shows its current binding.
    - **Click to set** — press the key/combo you want (hold modifiers).
    - **AHK trigger** — assigns the next free F13–F24 (unique keys that won't collide
-     with your real keyboard, so AutoHotkey can grab them cleanly).
+     with your real keyboard, so AutoHotkey can grab them cleanly). Catch it in your own
+     script with `F13::` etc. The app doesn't generate a script — it just makes the
+     button send the F-key.
 3. **Save to device** — writes all 3 keys and commits to flash.
-4. **Copy AHK script** / **Save pad.ahk** — generates an AutoHotkey v2 file with hotkey
-   stubs for any keys set as AHK triggers. Fill in the bodies and keep it running
-   (shortcut in `shell:startup` to autostart).
 
 ## Does it actually persist? Run the diagnostic.
 
