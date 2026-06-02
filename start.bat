@@ -10,5 +10,5 @@ if errorlevel 1 (
   python -m pip install --quiet hidapi
 )
 
-echo Starting SayoPad agent on http://localhost:8770 ...
+echo Starting SayoPad agent on http://localhost:17890 ...
 python agent.py

@@ -8,13 +8,13 @@ keys as **F13–F24 AutoHotkey triggers** for use in your own scripts.
 
 Browsers can only talk to USB HID via WebHID, which **Firefox/Safari don't support**.
 So a tiny local Python agent (`agent.py`) does the USB I/O and serves the web UI on
-`http://localhost:8770`. The browser just calls localhost — so it works in **any
+`http://localhost:17890`. The browser just calls localhost — so it works in **any
 browser, Firefox included**. No WebHID, no Chromium requirement.
 
 ## Run
 
 Double-click **`start.bat`** (installs `hidapi` the first time, then launches the agent
-and opens your browser at `http://localhost:8770`). Or manually:
+and opens your browser at `http://localhost:17890`). Or manually:
 
 ```
 python -m pip install hidapi

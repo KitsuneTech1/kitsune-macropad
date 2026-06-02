@@ -2,7 +2,7 @@
 """SayoPad local HID agent.
 
 Does the actual USB HID talking (which browsers can't do in Firefox) and serves
-the web UI + a small JSON API on http://localhost:8770. Any browser works.
+the web UI + a small JSON API on http://localhost:17890. Any browser works.
 
 Protocol (SayoDevice O3C family, VID 0x8089):
   packet = [cmd, len, *payload, checksum, ...0]  (63 data bytes after the report id)
@@ -23,7 +23,7 @@ except ImportError:
 
 VENDOR_ID = 0x8089
 PACKET_LEN = 63
-PORT = 8770
+PORT = 17890  # 8770 is inside a Windows OS-reserved port range; avoid it
 ROOT = os.path.dirname(os.path.abspath(__file__))
 
 KEY_CMD_CANDIDATES = [0x16, 0x06, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d,
