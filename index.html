@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SayoDevice 1x3P Remapper</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<header>
+  <div class="brand">
+    <span class="dot"></span>
+    <h1>SayoPad Remapper</h1>
+  </div>
+  <div id="devinfo" class="devinfo">Not connected</div>
+  <button id="connect" class="btn primary">Connect</button>
+</header>
+
+<main>
+  <section id="unsupported" class="card warn hidden">
+    <strong>WebHID unavailable.</strong> Open this page in Edge, Chrome, or Brave —
+    Firefox and Safari don't support WebHID.
+  </section>
+
+  <section id="keys" class="keys hidden"></section>
+
+  <section id="actions" class="actions hidden">
+    <button id="save" class="btn primary">Save to device</button>
+    <button id="verify" class="btn">Verify persistence</button>
+    <button id="exportAhk" class="btn">Copy AHK script</button>
+    <button id="saveAhk" class="btn">Save pad.ahk</button>
+  </section>
+
+  <section id="status" class="status"></section>
+
+  <details class="logwrap">
+    <summary>Raw HID log</summary>
+    <pre id="log" class="log"></pre>
+  </details>
+</main>
+
+<dialog id="capture" class="capture">
+  <h2>Press a key</h2>
+  <p>Hold any modifiers (Ctrl/Shift/Alt/Win) and press the key you want on this pad.</p>
+  <p class="captured" id="capturedText">…</p>
+  <menu>
+    <button id="captureCancel" class="btn">Cancel</button>
+    <button id="captureOk" class="btn primary" disabled>Use this</button>
+  </menu>
+</dialog>
+
+<script type="module" src="ui.js"></script>
+</body>
+</html>
