@@ -34,6 +34,7 @@ async function connect() {
     await dev.open();
     const id = dev.model ? `model 0x${dev.model.toString(16)} · fw 0x${(dev.version||0).toString(16)}` : 'connected';
     $('devinfo').textContent = `${dev.dev.productName || 'SayoDevice'} — ${id}`;
+    $('hint').classList.remove('hidden');
     $('keys').classList.remove('hidden');
     $('actions').classList.remove('hidden');
     await readAll();
@@ -65,8 +66,8 @@ function renderKeys() {
       <h3>Key ${i + 1}</h3>
       <div class="binding ${empty ? 'empty' : ''}">${txt}</div>
       <div class="row">
-        <button class="btn small" data-set="${i}">Click to set</button>
-        <button class="btn small" data-ahk="${i}">AHK trigger</button>
+        <button class="btn small" data-set="${i}" title="Make this button type a real key or combo (e.g. Ctrl+C). No extra software.">Click to set</button>
+        <button class="btn small" data-ahk="${i}" title="Send a hidden F-key that AutoHotkey turns into any action you want.">AHK trigger</button>
       </div>`;
     sec.appendChild(card);
   }
@@ -113,7 +114,7 @@ function assignAhk(index) {
   if (hid > 0x73) { setStatus('All F13–F24 triggers are in use.', 'err'); return; }
   bindings[index] = { type: bindings[index]?.type || 0, mods: 0, keys: [hid, 0, 0] };
   renderKeys();
-  setStatus(`Key ${index + 1} set to ${HID_TO_NAME[hid]} (AHK trigger). Save, then export the AHK script.`, 'info');
+  setStatus(`Key ${index + 1} now sends ${HID_TO_NAME[hid]}. Next: click "Save to device", then "Save pad.ahk" to choose what ${HID_TO_NAME[hid]} actually does.`, 'info');
 }
 
 // --- save -------------------------------------------------------------------

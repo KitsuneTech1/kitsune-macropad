@@ -36,6 +36,12 @@ header {
 main { max-width: 880px; margin: 0 auto; padding: 28px 24px 64px; }
 .hidden { display: none !important; }
 
+.hint {
+  font-size: 13px; color: var(--mut); line-height: 1.6;
+  background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--cyan);
+  border-radius: 10px; padding: 12px 14px; margin: 0 0 18px;
+}
+.hint strong { color: var(--txt); }
 .keys { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 .keycard {
   background: linear-gradient(180deg, var(--panel) 0%, var(--panel2) 100%);
