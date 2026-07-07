@@ -1,4 +1,4 @@
-// keymap.js — pure helpers shared by the UI (no device I/O here).
+// keymap.js - pure helpers shared by the UI (no device I/O here).
 
 // KeyboardEvent.code -> HID keyboard usage id
 export const CODE_TO_HID = (() => {

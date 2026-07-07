@@ -193,7 +193,7 @@ class Handler(BaseHTTPRequestHandler):
             if path == "/api/log":
                 return self._json(200, {"log": SAYO.log})
             return self._static(path)
-        except Exception as e:  # noqa: BLE001 — surface device errors to the UI
+        except Exception as e:  # noqa: BLE001 - surface device errors to the UI
             return self._json(500, {"ok": False, "error": str(e)})
 
     def do_POST(self):
@@ -246,7 +246,7 @@ def main():
     try:
         import webbrowser
         webbrowser.open(url)
-    except Exception:
+    except Exception:  # noqa: BLE001 - opening a browser tab is optional, ignore if it fails
         pass
     try:
         srv.serve_forever()

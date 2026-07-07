@@ -1,4 +1,4 @@
-// client.js — talks to the local Python HID agent over localhost.
+// client.js - talks to the local Python HID agent over localhost.
 // Mirrors the old WebHID device interface so the UI barely changes.
 
 async function jget(path) {

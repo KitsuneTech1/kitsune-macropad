@@ -1,4 +1,4 @@
-// ui.js — wiring for the SayoPad Remapper (talks to the local HID agent)
+// ui.js - wiring for the SayoPad Remapper (talks to the local HID agent)
 import { CODE_TO_HID, HID_TO_NAME, bindingToText } from './keymap.js';
 import { AgentClient, agentAlive } from './client.js';
 
@@ -39,7 +39,7 @@ async function connect() {
     setStatus('Connecting to pad…', 'info');
     await dev.connect();
     const id = dev.model ? `model 0x${dev.model.toString(16)} · fw 0x${(dev.version || 0).toString(16)}` : 'connected';
-    $('devinfo').textContent = `${dev.name || 'SayoDevice'} — ${id}`;
+    $('devinfo').textContent = `${dev.name || 'SayoDevice'} - ${id}`;
     $('hint').classList.remove('hidden');
     $('keys').classList.remove('hidden');
     $('actions').classList.remove('hidden');
@@ -99,7 +99,7 @@ function captureKey(index) {
     const combo = e.ctrlKey || e.shiftKey || e.altKey || e.metaKey;
     captureResult = { keycode: hid };
     $('capturedText').textContent = bindingToText(captureResult) +
-      (combo ? '  (modifier ignored — use AHK trigger for combos)' : '');
+      (combo ? '  (modifier ignored, use AHK trigger for combos)' : '');
     $('captureOk').disabled = false;
   };
   document.addEventListener('keydown', onKey, true);
@@ -152,7 +152,7 @@ async function verifyPersistence() {
     append('Writing sentinel F24 + flash save…');
     await dev.writeKey(0, { keycode: SENTINEL });
     const savedOk = await dev.save();
-    if (!savedOk) { append('Flash commit NAK — firmware likely rejects writes ✗', 'err'); return; }
+    if (!savedOk) { append('Flash commit NAK, firmware likely rejects writes ✗', 'err'); return; }
 
     const immediate = await dev.readKey(0);
     const wroteOk = immediate && immediate.keycode === SENTINEL;
@@ -165,8 +165,8 @@ async function verifyPersistence() {
 
     const after = await dev.readKey(0);
     const persisted = after && after.keycode === SENTINEL;
-    if (persisted) append('VERDICT: firmware accepts persistent writes ✓ — on-device remap is reliable.', 'ok');
-    else append('VERDICT: firmware silently rejects flash writes ✗ — bindings will not survive reboot on this unit.', 'err');
+    if (persisted) append('VERDICT: firmware accepts persistent writes ✓. On-device remap is reliable.', 'ok');
+    else append('VERDICT: firmware silently rejects flash writes ✗. Bindings will not survive reboot on this unit.', 'err');
 
     await restore(original);
     await readAll();
