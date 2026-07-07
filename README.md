@@ -1,54 +1,56 @@
 # SayoPad Remapper
 
-Custom English remapper for the **SayoDevice 1x3P** macro pad (`VID 0x8089`). Writes
-bindings to the pad's **onboard flash** so they persist across reboots, and can assign
-keys as **F13–F24 AutoHotkey triggers** for use in your own scripts.
+Remap the 3 keys on a SayoDevice 1x3P macro pad from a browser tab, in Chrome, Firefox, or Safari.
 
-## Why there's a local agent
+![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Python](https://img.shields.io/badge/agent-Python%203-3776AB.svg)
+![Any Browser](https://img.shields.io/badge/browser-Chrome%20%7C%20Firefox%20%7C%20Safari-green.svg)
 
-Browsers can only talk to USB HID via WebHID, which **Firefox/Safari don't support**.
-So a tiny local Python agent (`agent.py`) does the USB I/O and serves the web UI on
-`http://localhost:17890`. The browser just calls localhost — so it works in **any
-browser, Firefox included**. No WebHID, no Chromium requirement.
+![SayoPad Remapper UI](docs/screenshot.png)
 
-## Run
+## Features
 
-Double-click **`start.bat`** (installs `hidapi` the first time, then launches the agent
-and opens your browser at `http://localhost:17890`). Or manually:
+- Read and rebind all 3 keys on the pad over USB HID
+- **Click to set** - press any key (letters, digits, punctuation, function keys, arrows, numpad) and the pad sends that keystroke
+- **AHK trigger** - assign one of F13-F24 so your own AutoHotkey script can catch it, for combos this analog firmware can't do on its own
+- **Save to device** - commits all 3 bindings to the pad's onboard flash
+- **Verify persistence** - writes a sentinel key, has you unplug/replug the pad, and tells you whether your firmware actually keeps flash writes across a power cycle
+- Raw HID log panel showing every TX/RX packet, for debugging the wire protocol
 
-```
-python -m pip install hidapi
-python agent.py
-```
+## Requirements
 
-1. Click **Connect** — the agent opens the pad and shows the 3 current bindings.
-2. Per key:
-   - **Click to set** — press the key you want (single key; this analog firmware doesn't
-     do on-device modifier combos — use an AHK trigger for those).
-   - **AHK trigger** — assigns the next free F13–F24. Catch it in your own AutoHotkey
-     script with `F13::`. The app doesn't generate a script; it just makes the button
-     send the F-key.
-3. **Save to device** — writes all 3 keys and commits to flash.
-4. **Verify persistence** — writes a sentinel, has you unplug/replug, and confirms whether
-   your firmware actually keeps writes across a power cycle.
+- A SayoDevice 1x3P macro pad (VID `0x8089`)
+- Python 3 with `hidapi` (`pip install hidapi` - `start.bat` does this for you on first run)
+- Any browser - Chrome, Firefox, Edge, Safari all work
 
-## This pad is analog
+## Quick start
 
-The 1x3P (fw 0x9a08) is a hall-effect pad. Its key config is a 46-byte structure holding
-actuation/calibration data; the tap keycode lives at byte offsets 21 and 27. The agent
-reads the whole structure, edits **only** the keycode bytes, and writes it back — so your
-actuation settings are never disturbed.
+1. Plug in the pad.
+2. Double-click **`start.bat`** (Windows), or run `python agent.py` after `pip install hidapi`.
+3. Your browser opens at `http://localhost:17890` automatically.
+4. Click **Connect**, then per key: **Click to set** for a single keystroke, or **AHK trigger** for an F13-F24 you catch in your own script.
+5. Click **Save to device** to commit to flash. Use **Verify persistence** once to confirm your unit's firmware actually keeps writes across a reboot.
+
+## How it works
+
+Raw USB HID access from a browser normally means WebHID, and WebHID only works in Chromium. This project skips that limit: `agent.py` is a small local Python process that opens the pad directly with `hidapi` and exposes a JSON API on `http://localhost:17890` (`/api/connect`, `/api/keys`, `/api/key`, `/api/save`). The static page (`index.html`, `ui.js`, `client.js`) talks to that API over `fetch`, so the same UI works in any browser, not just Chrome.
+
+The 1x3P is a hall-effect (analog) pad. Its per-key config is a 46-byte structure holding actuation and calibration data; the tap keycode lives at a fixed offset inside it. The agent reads the whole structure, edits only the keycode bytes, and writes it back, so your actuation tuning is never disturbed.
+
+Because the UI depends on the local agent for every action (connect, read, write, save), it isn't hosted as a static site. Run it locally with `start.bat` or `python agent.py`.
 
 ## Files
 
-- `agent.py` — local HID agent (protocol + localhost HTTP/JSON API + static server)
-- `index.html` · `styles.css` — UI
-- `ui.js` — UI logic · `client.js` — localhost API client · `keymap.js` — keycode tables
-- `start.bat` — launcher
+- `agent.py` - local HID agent: USB protocol, localhost JSON API, static file server
+- `index.html`, `styles.css` - UI markup and styling
+- `ui.js` - UI logic and state
+- `client.js` - localhost API client
+- `keymap.js` - HID keycode tables
+- `start.bat` - Windows launcher
 
-## Protocol notes
+## License
 
-- Report ID 2; packet `[cmd, len, ...payload, checksum, pad]` (63 data bytes).
-- checksum = `(reportId + cmd + len + sum(payload)) & 0xFF`.
-- `0x00` init (model/fw/support list) · key cmd `0x16` (read `pat=0` / write `pat=1`) ·
-  `0x04` flash save `[0x72, 0x96]`. Open the **Raw HID log** panel to see TX/RX hex.
+MIT, see [LICENSE](LICENSE).
+
+---
+Built by [Kitsune Technologies](https://kitsunetechnologies.org). See more of our work at [kitsunetechnologies.org/work](https://kitsunetechnologies.org/work). Issues and PRs welcome.
