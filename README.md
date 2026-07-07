@@ -17,19 +17,49 @@ Remap the 3 keys on a SayoDevice 1x3P macro pad from a browser tab, in Chrome, F
 - **Verify persistence** - writes a sentinel key, has you unplug/replug the pad, and tells you whether your firmware actually keeps flash writes across a power cycle
 - Raw HID log panel showing every TX/RX packet, for debugging the wire protocol
 
-## Requirements
+## Run it yourself
 
-- A SayoDevice 1x3P macro pad (VID `0x8089`)
-- Python 3 with `hidapi` (`pip install hidapi` - `start.bat` does this for you on first run)
-- Any browser - Chrome, Firefox, Edge, Safari all work
+### What you need
 
-## Quick start
+- **A SayoDevice 1x3P macro pad**, plugged into a USB port (it's identified by USB vendor ID `0x8089`, you don't need to do anything with that number, the agent finds it automatically).
+- **Python 3.8 or newer.** Check with `python --version` in a terminal. If that errors or shows Python 2, get it from https://python.org/downloads. During install, check the box that says **"Add python.exe to PATH"**, it's easy to miss and things won't work without it.
+- **The `hidapi` Python package.** You don't need to install this by hand, `start.bat` installs it for you the first time you run it. If you're running `agent.py` directly instead, install it with `python -m pip install hidapi`.
+- **Any browser** - Chrome, Firefox, Edge, and Safari all work. The Python agent does the USB communication, so the browser limitation that normally restricts this to Chrome doesn't apply here.
 
-1. Plug in the pad.
-2. Double-click **`start.bat`** (Windows), or run `python agent.py` after `pip install hidapi`.
-3. Your browser opens at `http://localhost:17890` automatically.
-4. Click **Connect**, then per key: **Click to set** for a single keystroke, or **AHK trigger** for an F13-F24 you catch in your own script.
-5. Click **Save to device** to commit to flash. Use **Verify persistence** once to confirm your unit's firmware actually keeps writes across a reboot.
+### Step by step
+
+**Getting the files**
+
+If you have git, clone it:
+
+```powershell
+git clone https://github.com/KitsuneTech1/sayo-remap.git
+cd sayo-remap
+```
+
+If you don't have git, click the green **Code** button on this repo's GitHub page, then **Download ZIP**, then right-click the downloaded zip and choose **Extract All**, then open the extracted `sayo-remap` folder.
+
+**Running it**
+
+1. Plug in the SayoDevice 1x3P pad.
+2. Double-click **`start.bat`**.
+3. The first time you run it, a black terminal window will briefly say "Installing hidapi (one time)..." and install a small Python package. This is normal and only happens once.
+4. The window will then print `Starting SayoPad agent on http://localhost:17890 ...` and stay open. Leave it open, it needs to keep running while you use the tool.
+5. Your browser should open automatically to `http://localhost:17890`. If it doesn't, open your browser yourself and go to that address.
+6. Click **Connect**. The page should say the pad is connected.
+7. For each key, click **Click to set** and then press the key you want that pad button to send, or use **AHK trigger** to assign an F13-F24 key for your own AutoHotkey script to catch.
+8. Click **Save to device** to write your changes to the pad's onboard memory.
+
+**It worked if:** the page says Connected after step 6, and after **Save to device** your pad actually sends the new key when you press it.
+
+To stop the agent, click back into the black terminal window and press `Ctrl+C`, or just close the window.
+
+**Troubleshooting**
+
+- *`python` is not recognized* (Windows opens a Microsoft Store page instead of running it): Python isn't installed, or wasn't added to PATH during install. Reinstall from https://python.org/downloads and check "Add python.exe to PATH."
+- *"No SayoDevice found (VID 0x8089). Is it plugged in?"*: unplug and replug the pad, try a different USB port, and make sure no other program (like the manufacturer's own configuration app) has it open at the same time.
+- *"Device did not respond (timeout)"*: unplug and replug the pad and click Connect again. If it keeps happening, try a different USB port or cable.
+- *The browser never opens / can't reach localhost:17890*: make sure the black terminal window from `start.bat` is still open and didn't show an error. Some antivirus or firewall software blocks local Python servers, if that's the case, allow `python.exe` through it.
 
 ## How it works
 
