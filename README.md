@@ -1,3 +1,5 @@
+<p align="center"><a href="https://kitsunetechnologies.org/work"><img src="https://raw.githubusercontent.com/KitsuneTech1/.github/main/assets/kitsune-banner.svg" alt="Built by Kitsune Technologies" width="760"></a></p>
+
 # SayoPad Remapper
 
 Remap the 3 keys on a SayoDevice 1x3P macro pad from a browser tab, in Chrome, Firefox, or Safari.
@@ -81,6 +83,3 @@ Because the UI depends on the local agent for every action (connect, read, write
 ## License
 
 MIT, see [LICENSE](LICENSE).
-
----
-Built by [Kitsune Technologies](https://kitsunetechnologies.org). See more of our work at [kitsunetechnologies.org/work](https://kitsunetechnologies.org/work). Issues and PRs welcome.
