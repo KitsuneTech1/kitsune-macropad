@@ -4,7 +4,7 @@
 
 Remap the 3 keys on a SayoDevice 1x3P macro pad from a browser tab, in Chrome, Firefox, or Safari.
 
-![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)
+![License: PolyForm Noncommercial](https://img.shields.io/badge/license-PolyForm%20Noncommercial-8250df.svg)
 ![Python](https://img.shields.io/badge/agent-Python%203-3776AB.svg)
 ![Any Browser](https://img.shields.io/badge/browser-Chrome%20%7C%20Firefox%20%7C%20Safari-green.svg)
 
