@@ -4,7 +4,7 @@
 
 Remap the 3 keys on a SayoDevice 1x3P macro pad from a browser tab, in Chrome, Firefox, or Safari.
 
-[![License: PolyForm Small Business](https://img.shields.io/badge/license-PolyForm%20Small%20Business-8250df.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 ![Python](https://img.shields.io/badge/agent-Python%203-3776AB.svg)
 ![Any Browser](https://img.shields.io/badge/browser-Chrome%20%7C%20Firefox%20%7C%20Safari-green.svg)
 
@@ -82,4 +82,4 @@ Because the UI depends on the local agent for every action (connect, read, write
 
 ## License
 
-PolyForm Small Business License 1.0.0. Copyright (c) 2026 Kitsune Technologies LLC. Free to use, modify, and share if you are an individual or a company with fewer than 100 people and under 1,000,000 USD in annual revenue. Larger organizations need a commercial license, contact Support@kitsunetechnologies.org. Full text in [LICENSE](LICENSE).
+MIT. Copyright (c) 2026 Kitsune Technologies LLC. Do what you like with it, commercially or otherwise, just keep the copyright notice. Full text in [LICENSE](LICENSE).
