@@ -1,7 +1,7 @@
 # SayoDevice 1x3P Custom Remap WebUI — Design
 
 **Date:** 2026-06-02
-**Project dir:** `C:\Users\Owner\sayo-remap`
+**Project dir:** repository root
 
 ## Problem
 
