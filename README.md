@@ -1,14 +1,14 @@
 <p align="center"><a href="https://kitsunetechnologies.org/work"><img src="https://raw.githubusercontent.com/KitsuneTech1/.github/main/assets/kitsune-banner.svg" alt="Built by Kitsune Technologies" width="760"></a></p>
 
-# SayoPad Remapper
+# MacroPad Local
 
-Remap the 3 keys on a SayoDevice 1x3P macro pad from a browser tab, in Chrome, Firefox, or Safari.
+Remap a SayoDevice macro pad from a browser UI with a small local HID agent.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-![Python](https://img.shields.io/badge/agent-Python%203-3776AB.svg)
+![Python](https://img.shields.io/badge/python-3.8+-3776AB.svg)
 ![Any Browser](https://img.shields.io/badge/browser-Chrome%20%7C%20Firefox%20%7C%20Safari-green.svg)
 
-![SayoPad Remapper UI](docs/screenshot.png)
+![MacroPad Local UI](docs/screenshot.png)
 
 ## Features
 
@@ -35,18 +35,18 @@ Remap the 3 keys on a SayoDevice 1x3P macro pad from a browser tab, in Chrome, F
 If you have git, clone it:
 
 ```powershell
-git clone https://github.com/KitsuneTech1/sayo-remap.git
-cd sayo-remap
+git clone https://github.com/KitsuneTech1/kitsune-macropad.git
+cd kitsune-macropad
 ```
 
-If you don't have git, click the green **Code** button on this repo's GitHub page, then **Download ZIP**, then right-click the downloaded zip and choose **Extract All**, then open the extracted `sayo-remap` folder.
+If you don't have git, click the green **Code** button on this repo's GitHub page, then **Download ZIP**, then right-click the downloaded zip and choose **Extract All**, then open the extracted `kitsune-macropad` folder.
 
 **Running it**
 
 1. Plug in the SayoDevice 1x3P pad.
 2. Double-click **`start.bat`**.
 3. The first time you run it, a black terminal window will briefly say "Installing hidapi (one time)..." and install a small Python package. This is normal and only happens once.
-4. The window will then print `Starting SayoPad agent on http://localhost:17890 ...` and stay open. Leave it open, it needs to keep running while you use the tool.
+4. The window will then print `Starting MacroPad Local on http://localhost:17890 ...` and stay open. Leave it open, it needs to keep running while you use the tool.
 5. Your browser should open automatically to `http://localhost:17890`. If it doesn't, open your browser yourself and go to that address.
 6. Click **Connect**. The page should say the pad is connected.
 7. For each key, click **Click to set** and then press the key you want that pad button to send, or use **AHK trigger** to assign an F13-F24 key for your own AutoHotkey script to catch.

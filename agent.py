@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""SayoPad local HID agent.
+"""MacroPad Local HID agent.
 
 Does the actual USB HID talking (which browsers can't do in Firefox) and serves
 the web UI + a small JSON API on http://localhost:17890. Any browser works.
@@ -361,7 +361,7 @@ class Handler(BaseHTTPRequestHandler):
 def main():
     srv = ThreadingHTTPServer(("127.0.0.1", PORT), Handler)
     url = f"http://localhost:{PORT}/"
-    print(f"SayoPad agent on {url}  (Ctrl+C to stop)")
+    print(f"MacroPad Local on {url}  (Ctrl+C to stop)")
     try:
         import webbrowser
         webbrowser.open(url)
