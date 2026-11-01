@@ -65,9 +65,12 @@ class Sayo:
         path = self._find_path()
         if not path:
             raise RuntimeError("No SayoDevice found (VID 0x8089). Is it plugged in?")
+        if self.dev:
+            self.close()
         self.dev = hid.device()
         self.dev.open_path(path)
         self.dev.set_nonblocking(0)
+        self.bodies.clear()
         self._log("open", f"{self.name} path={path!r}")
         self._detect()
 
@@ -77,6 +80,7 @@ class Sayo:
                 self.dev.close()
         finally:
             self.dev = None
+            self.bodies.clear()
 
     def _checksum(self, cmd, ln, payload):
         s = (self.report_id + cmd + ln + sum(payload)) & 0xff
@@ -103,6 +107,9 @@ class Sayo:
         raise RuntimeError("Device did not respond (timeout).")
 
     def _detect(self):
+        self.model = None
+        self.version = None
+        self.key_cmd = 0x16
         now = time.localtime()
         payload = [now.tm_mday, now.tm_hour, now.tm_min, now.tm_sec]
         # Try report id 2, then 33 if no response.
@@ -164,6 +171,19 @@ STATIC = {".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=
           ".css": "text/css; charset=utf-8", ".json": "application/json"}
 
 
+def resolve_static_path(path):
+    """Return a requested static file only when it stays below ROOT."""
+    if path == "/":
+        path = "/index.html"
+    root = os.path.realpath(ROOT)
+    fp = os.path.realpath(os.path.join(root, path.lstrip("/")))
+    try:
+        inside_root = os.path.commonpath((root, fp)) == root
+    except ValueError:
+        inside_root = False
+    return fp if inside_root and os.path.isfile(fp) else None
+
+
 class Handler(BaseHTTPRequestHandler):
     def log_message(self, *a):
         pass
@@ -222,10 +242,8 @@ class Handler(BaseHTTPRequestHandler):
             return self._json(500, {"ok": False, "error": str(e)})
 
     def _static(self, path):
-        if path == "/":
-            path = "/index.html"
-        fp = os.path.normpath(os.path.join(ROOT, path.lstrip("/")))
-        if not fp.startswith(ROOT) or not os.path.isfile(fp):
+        fp = resolve_static_path(path)
+        if fp is None:
             self.send_response(404)
             self.end_headers()
             return
