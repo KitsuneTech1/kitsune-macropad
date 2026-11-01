@@ -1,5 +1,5 @@
 @echo off
-REM SayoPad Remapper — local HID agent launcher.
+REM MacroPad Local - local HID agent launcher.
 REM Works in ANY browser (Firefox included) because the agent does the USB I/O.
 setlocal
 cd /d "%~dp0"
@@ -14,5 +14,5 @@ if errorlevel 1 (
   )
 )
 
-echo Starting SayoPad agent on http://localhost:17890 ...
+echo Starting MacroPad Local on http://localhost:17890 ...
 python agent.py

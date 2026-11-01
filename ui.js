@@ -1,4 +1,4 @@
-// ui.js - wiring for the SayoPad Remapper (talks to the local HID agent)
+// ui.js - wiring for MacroPad Local (talks to the local HID agent)
 import { CODE_TO_HID, HID_TO_NAME, bindingToText } from './keymap.js';
 import { AgentClient, agentAlive } from './client.js';
 import { appendStatusText, setStatusText } from './ui-utils.js';
