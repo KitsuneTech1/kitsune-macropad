@@ -3,6 +3,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node tests/keymap.test.mjs"
+    "test": "node tests/keymap.test.mjs && node tests/client.test.mjs && node tests/ui.test.mjs"
   }
 }

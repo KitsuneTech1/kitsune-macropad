@@ -48,6 +48,7 @@ export const HID_TO_NAME = (() => {
 // binding = { keycode }  (single HID usage; this analog firmware stores a tap pair)
 export function bindingToText(b) {
   if (!b) return '(unreadable)';
+  if (!Number.isInteger(b.keycode) || b.keycode < 0 || b.keycode > 0xff) return '(invalid)';
   if (!b.keycode) return '(unassigned)';
   return HID_TO_NAME[b.keycode] || ('0x' + b.keycode.toString(16));
 }

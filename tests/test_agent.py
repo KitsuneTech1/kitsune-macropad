@@ -37,6 +37,18 @@ def test_send_builds_report_packet_and_strips_report_id():
     assert result == [0xAA, 0xBB]
 
 
+def test_send_rejects_payloads_that_cannot_fit_the_wire_packet():
+    sayo = agent.Sayo()
+    sayo.dev = FakeDevice()
+
+    import pytest
+
+    with pytest.raises(ValueError, match="payload exceeds"):
+        sayo._send(0x10, [0] * (agent.MAX_PAYLOAD + 1))
+    with pytest.raises(ValueError, match="unsigned bytes"):
+        sayo._send(0x10, [256])
+
+
 def test_read_and_write_preserve_the_unchanged_config_bytes():
     sayo = agent.Sayo()
     body = list(range(44))
@@ -58,6 +70,36 @@ def test_read_and_write_preserve_the_unchanged_config_bytes():
     assert sent[1][2:2 + 17] == body[:17]
     assert sent[1][2 + 18:2 + 23] == body[18:23]
     assert sent[1][2 + 24:] == body[24:]
+
+
+def test_malformed_key_response_is_rejected_without_indexing_missing_bytes():
+    sayo = agent.Sayo()
+    sayo._send = lambda _cmd, _payload: [0, 48, 0]
+
+    assert sayo.read_key(0) is None
+
+
+def test_key_inputs_are_bounded_before_reaching_the_device():
+    import pytest
+
+    with pytest.raises(ValueError):
+        agent.validate_key_index(-1)
+    with pytest.raises(ValueError):
+        agent.validate_key_index(True)
+    with pytest.raises(ValueError):
+        agent.validate_keycode(256)
+    with pytest.raises(ValueError):
+        agent.validate_keycode("17")
+    assert agent.validate_key_request({"index": 2, "keycode": 0x73}) == (2, 0x73)
+
+
+def test_json_body_parser_rejects_non_objects_and_oversized_bodies():
+    import pytest
+
+    with pytest.raises(ValueError, match="JSON object"):
+        agent.parse_json_body(b"[]")
+    with pytest.raises(ValueError, match="too large"):
+        agent.parse_json_body(b"x" * (agent.MAX_JSON_BODY + 1))
 
 
 def test_save_uses_report_id_two_and_restores_the_active_report_id():
@@ -116,11 +158,65 @@ def test_reopening_closes_old_device_and_drops_cached_key_bodies(monkeypatch):
     assert sayo.bodies == {}
 
 
+def test_open_cleans_up_when_detection_fails(monkeypatch):
+    sayo = agent.Sayo()
+    device = FakeDevice()
+    sayo._detect = lambda: (_ for _ in ()).throw(RuntimeError("bad response"))
+
+    class Hid:
+        @staticmethod
+        def enumerate(_vendor, _product):
+            return [{"usage_page": 0xFF00, "path": "device-path", "product_string": "Test Pad"}]
+
+        @staticmethod
+        def device():
+            return device
+
+    monkeypatch.setattr(agent, "hid", Hid)
+
+    import pytest
+
+    with pytest.raises(RuntimeError, match="bad response"):
+        sayo.open()
+    assert device.closed is True
+    assert sayo.dev is None
+
+
+def test_device_path_is_not_written_to_the_log(monkeypatch):
+    sayo = agent.Sayo()
+    device_path = "private-device-path"
+
+    class Hid:
+        @staticmethod
+        def enumerate(_vendor, _product):
+            return [{"usage_page": 0xFF00, "path": device_path, "product_string": "Test Pad"}]
+
+        @staticmethod
+        def device():
+            return FakeDevice()
+
+    monkeypatch.setattr(agent, "hid", Hid)
+    sayo._detect = lambda: None
+    sayo.open()
+
+    assert device_path not in "\n".join(sayo.get_log())
+
+
 def test_static_paths_cannot_escape_the_application_root(monkeypatch):
     root = agent.os.path.abspath("application-root")
     safe = agent.os.path.join(root, "index.html")
+    diagnostic = agent.os.path.join(root, "diagnostic.js")
     monkeypatch.setattr(agent, "ROOT", root)
-    monkeypatch.setattr(agent.os.path, "isfile", lambda path: path == safe)
+    monkeypatch.setattr(agent.os.path, "isfile", lambda path: path in {safe, diagnostic})
 
     assert agent.resolve_static_path("/index.html") == safe
     assert agent.resolve_static_path("/../application-root-sibling/secret.txt") is None
+    assert agent.resolve_static_path("/README.md") is None
+    assert agent.resolve_static_path("/.git/config") is None
+    assert agent.resolve_static_path("/diagnostic.js") == diagnostic
+
+
+def test_cross_origin_requests_are_not_allowed_to_use_the_local_api():
+    assert agent.is_allowed_origin(None) is True
+    assert agent.is_allowed_origin(f"http://localhost:{agent.PORT}") is True
+    assert agent.is_allowed_origin("cross-origin") is False
