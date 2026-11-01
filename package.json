@@ -1,0 +1,8 @@
+{
+  "name": "sayo-remap",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node tests/keymap.test.mjs"
+  }
+}

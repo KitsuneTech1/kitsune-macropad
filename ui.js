@@ -75,7 +75,7 @@ function renderKeys() {
       <h3>Key ${i + 1}</h3>
       <div class="binding ${empty ? 'empty' : ''}">${txt}</div>
       <div class="row">
-        <button class="btn small" data-set="${i}" title="Make this button type a real key or combo (e.g. Ctrl+C). No extra software.">Click to set</button>
+        <button class="btn small" data-set="${i}" title="Make this button type a single key. Modifiers and combos are ignored.">Click to set</button>
         <button class="btn small" data-ahk="${i}" title="Send a unique F-key (F13-F24) you can catch in your own AutoHotkey script.">AHK trigger</button>
       </div>`;
     sec.appendChild(card);

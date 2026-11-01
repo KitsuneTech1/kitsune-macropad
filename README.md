@@ -13,7 +13,7 @@ Remap the 3 keys on a SayoDevice 1x3P macro pad from a browser tab, in Chrome, F
 ## Features
 
 - Read and rebind all 3 keys on the pad over USB HID
-- **Click to set** - press any key (letters, digits, punctuation, function keys, arrows, numpad) and the pad sends that keystroke
+- **Click to set** - press any single key (letters, digits, punctuation, function keys, arrows, numpad) and the pad sends that keystroke. Modifier combinations are not stored.
 - **AHK trigger** - assign one of F13-F24 so your own AutoHotkey script can catch it, for combos this analog firmware can't do on its own
 - **Save to device** - commits all 3 bindings to the pad's onboard flash
 - **Verify persistence** - writes a sentinel key, has you unplug/replug the pad, and tells you whether your firmware actually keeps flash writes across a power cycle
@@ -70,6 +70,16 @@ Raw USB HID access from a browser normally means WebHID, and WebHID only works i
 The 1x3P is a hall-effect (analog) pad. Its per-key config is a 46-byte structure holding actuation and calibration data; the tap keycode lives at a fixed offset inside it. The agent reads the whole structure, edits only the keycode bytes, and writes it back, so your actuation tuning is never disturbed.
 
 Because the UI depends on the local agent for every action (connect, read, write, save), it isn't hosted as a static site. Run it locally with `start.bat` or `python agent.py`.
+
+## Tests
+
+The tests run locally and do not need a SayoDevice, browser, or network access.
+
+```powershell
+python -m pytest -q
+npm test
+python -m compileall -q agent.py
+```
 
 ## Files
 
