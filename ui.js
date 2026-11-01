@@ -104,7 +104,13 @@ function captureKey(index) {
   };
   document.addEventListener('keydown', onKey, true);
 
-  const cleanup = () => { document.removeEventListener('keydown', onKey, true); dlg.close(); };
+  const cleanup = () => {
+    document.removeEventListener('keydown', onKey, true);
+    dlg.removeEventListener('cancel', onCancel);
+    if (dlg.open) dlg.close();
+  };
+  const onCancel = () => cleanup();
+  dlg.addEventListener('cancel', onCancel);
   $('captureOk').onclick = () => { if (captureResult) { bindings[index] = captureResult; renderKeys(); } cleanup(); };
   $('captureCancel').onclick = cleanup;
   dlg.showModal();
@@ -152,7 +158,12 @@ async function verifyPersistence() {
     append('Writing sentinel F24 + flash save…');
     await dev.writeKey(0, { keycode: SENTINEL });
     const savedOk = await dev.save();
-    if (!savedOk) { append('Flash commit NAK, firmware likely rejects writes ✗', 'err'); return; }
+    if (!savedOk) {
+      append('Flash commit NAK, firmware likely rejects writes ✗', 'err');
+      await restore(original);
+      await readAll();
+      return;
+    }
 
     const immediate = await dev.readKey(0);
     const wroteOk = immediate && immediate.keycode === SENTINEL;
