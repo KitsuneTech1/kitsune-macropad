@@ -11,5 +11,7 @@ assert.equal(HID_TO_NAME[0x68], 'F13');
 assert.equal(bindingToText({ keycode: 0 }), '(unassigned)');
 assert.equal(bindingToText({ keycode: 0x2c }), 'Space');
 assert.equal(bindingToText({ keycode: 0x7f }), '0x7f');
+assert.equal(bindingToText({ keycode: '<img src=x onerror=alert(1)>' }), '(invalid)');
+assert.equal(bindingToText({ keycode: 256 }), '(invalid)');
 
 console.log('keymap tests passed');

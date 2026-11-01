@@ -87,6 +87,9 @@ python -m compileall -q agent.py
 - `agent.py` - local HID agent: USB protocol, localhost JSON API, static file server
 - `index.html`, `styles.css` - UI markup and styling
 - `ui.js` - UI logic and state
+- `ui-utils.js` - safe status message rendering
+- `save-logic.js` - guarded write and flash-save workflow
+- `diagnostic.js` - persistence diagnostic workflow
 - `client.js` - localhost API client
 - `keymap.js` - HID keycode tables
 - `start.bat` - Windows launcher

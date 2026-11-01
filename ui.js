@@ -1,6 +1,9 @@
 // ui.js - wiring for the SayoPad Remapper (talks to the local HID agent)
 import { CODE_TO_HID, HID_TO_NAME, bindingToText } from './keymap.js';
 import { AgentClient, agentAlive } from './client.js';
+import { appendStatusText, setStatusText } from './ui-utils.js';
+import { runPersistenceDiagnostic } from './diagnostic.js';
+import { writeBindingsAndSave } from './save-logic.js';
 
 const NKEYS = 3;
 const $ = (id) => document.getElementById(id);
@@ -8,8 +11,8 @@ const logEl = $('log');
 const statusEl = $('status');
 
 const log = (tag, msg) => { logEl.textContent += `[${tag}] ${msg}\n`; logEl.scrollTop = logEl.scrollHeight; };
-const setStatus = (msg, cls = 'info') => { statusEl.innerHTML = `<span class="${cls}">${msg}</span>`; };
-const append = (msg, cls = 'info') => { statusEl.innerHTML += `\n<span class="${cls}">${msg}</span>`; };
+const setStatus = (msg, cls = 'info') => setStatusText(statusEl, msg, cls);
+const append = (msg, cls = 'info') => appendStatusText(statusEl, msg, cls);
 
 let dev = null;
 let bindings = new Array(NKEYS).fill(null);
@@ -132,13 +135,11 @@ async function saveAll() {
   if (!dev) return;
   setStatus('Writing keys…', 'info');
   try {
-    for (let i = 0; i < NKEYS; i++) {
-      const b = bindings[i] || { keycode: 0 };
-      const ok = await dev.writeKey(i, b);
+    const saved = await writeBindingsAndSave(dev, bindings, NKEYS, (i, ok) => {
       append(`Key ${i + 1}: ${ok ? 'written' : 'write NAK'}`, ok ? 'ok' : 'err');
-    }
-    const saved = await dev.save();
-    append(saved ? 'Committed to flash ✓' : 'Flash commit returned NAK ✗', saved ? 'ok' : 'err');
+    });
+    if (!saved.written) append('Flash commit skipped because a key write failed ✗', 'err');
+    else append(saved.saved ? 'Committed to flash ✓' : 'Flash commit returned NAK ✗', saved.saved ? 'ok' : 'err');
   } catch (e) {
     append('Save failed: ' + e.message, 'err');
   } finally {
@@ -149,49 +150,12 @@ async function saveAll() {
 // --- persistence diagnostic -------------------------------------------------
 async function verifyPersistence() {
   if (!dev) return;
-  const SENTINEL = 0x73; // F24
-  setStatus('Diagnostic: reading current Key 1…', 'info');
   try {
-    const original = await dev.readKey(0);
-    if (!original) throw new Error('cannot read Key 1');
-
-    append('Writing sentinel F24 + flash save…');
-    await dev.writeKey(0, { keycode: SENTINEL });
-    const savedOk = await dev.save();
-    if (!savedOk) {
-      append('Flash commit NAK, firmware likely rejects writes ✗', 'err');
-      await restore(original);
-      await readAll();
-      return;
-    }
-
-    const immediate = await dev.readKey(0);
-    const wroteOk = immediate && immediate.keycode === SENTINEL;
-    append(`Immediate read-back: ${wroteOk ? 'F24 present ✓' : 'sentinel NOT present ✗'}`, wroteOk ? 'ok' : 'err');
-    if (!wroteOk) { await restore(original); return; }
-
-    append('Now UNPLUG the pad, wait 2s, and PLUG IT BACK IN. Waiting…', 'info');
-    await dev.reconnect();
-    append('Reconnected. Re-reading Key 1…', 'info');
-
-    const after = await dev.readKey(0);
-    const persisted = after && after.keycode === SENTINEL;
-    if (persisted) append('VERDICT: firmware accepts persistent writes ✓. On-device remap is reliable.', 'ok');
-    else append('VERDICT: firmware silently rejects flash writes ✗. Bindings will not survive reboot on this unit.', 'err');
-
-    await restore(original);
+    await runPersistenceDiagnostic(dev, append);
     await readAll();
   } catch (e) {
     append('Diagnostic error: ' + e.message, 'err');
   } finally {
     await pullServerLog();
   }
-}
-
-async function restore(original) {
-  try {
-    await dev.writeKey(0, original);
-    await dev.save();
-    append('Original Key 1 binding restored.', 'info');
-  } catch (e) { append('Could not restore Key 1: ' + e.message, 'err'); }
 }

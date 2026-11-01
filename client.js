@@ -3,7 +3,7 @@
 
 async function jget(path) {
   const r = await fetch(path);
-  const j = await r.json();
+  const j = await responseJson(r);
   if (!r.ok || j.ok === false) throw new Error(j.error || `HTTP ${r.status}`);
   return j;
 }
@@ -13,9 +13,17 @@ async function jpost(path, body) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body || {}),
   });
-  const j = await r.json();
+  const j = await responseJson(r);
   if (!r.ok || j.ok === false) throw new Error(j.error || `HTTP ${r.status}`);
   return j;
+}
+
+async function responseJson(response) {
+  try {
+    return await response.json();
+  } catch {
+    throw new Error(`HTTP ${response.status}`);
+  }
 }
 
 export class AgentClient {
@@ -26,7 +34,7 @@ export class AgentClient {
   }
 
   async connect() {
-    const j = await jget('/api/connect');
+    const j = await jpost('/api/connect', {});
     this.name = j.name;
     this.model = j.model;
     this.version = j.version;
@@ -67,8 +75,10 @@ export class AgentClient {
 // Is the agent reachable at all?
 export async function agentAlive() {
   try {
-    await fetch('/api/log', { method: 'GET' });
-    return true;
+    const r = await fetch('/api/log', { method: 'GET' });
+    if (!r.ok) return false;
+    const j = await responseJson(r);
+    return Array.isArray(j.log);
   } catch {
     return false;
   }
