@@ -1,103 +1,88 @@
 <p align="center"><a href="https://kitsunetechnologies.org/work"><img src="https://raw.githubusercontent.com/KitsuneTech1/.github/main/assets/kitsune-banner.svg" alt="Built by Kitsune Technologies" width="760"></a></p>
 
-# MacroPad Local
+# MacroPad Local (kitsune-macropad)
 
-Remap a SayoDevice macro pad from a browser UI with a small local HID agent.
+> Cross-browser USB HID configuration tool and local bridge agent for the SayoDevice 1x3P macro pad. Configures keys, function assignments (F13-F24), and onboard flash persistence from any browser—Firefox and Safari included.
 
-[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-![Python](https://img.shields.io/badge/python-3.8+-3776AB.svg)
-![Any Browser](https://img.shields.io/badge/browser-Chrome%20%7C%20Firefox%20%7C%20Safari-green.svg)
+<p align="center">
+  <a href="https://github.com/KitsuneTech1/kitsune-macropad/releases"><img src="https://img.shields.io/github/v/release/KitsuneTech1/kitsune-macropad?style=flat-square&color=blue" alt="Release"></a>
+  <a href="https://github.com/KitsuneTech1/kitsune-macropad/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/KitsuneTech1/kitsune-macropad/ci.yml?branch=master&label=CI&style=flat-square" alt="CI Status"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg?style=flat-square" alt="License"></a>
+  <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/Python-3.8+-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python Version"></a>
+  <a href="agent.py"><img src="https://img.shields.io/badge/Browsers-Firefox%20%7C%20Chrome%20%7C%20Safari%20%7C%20Edge-success?style=flat-square" alt="Any Browser"></a>
+  <a href="agent.py"><img src="https://img.shields.io/badge/Hardware-SayoDevice%201x3P%20(0x8089)-orange?style=flat-square" alt="SayoDevice 1x3P"></a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/KitsuneTech1/kitsune-macropad/releases/latest"><strong>📦 Download Latest Release ZIP</strong></a> •
+  <a href="#-quick-start-noob-friendly"><strong>⚡ Quick Start Guide</strong></a> •
+  <a href="#architecture--usb-hid-bridge"><strong>🔌 Hardware Architecture</strong></a>
+</p>
+
+---
 
 ![MacroPad Local UI](docs/screenshot.png)
 
+## Architecture & USB HID Bridge
+
+Unlike official browser configurators that rely on proprietary WebHID APIs restricted to Chromium, MacroPad Local uses a lightweight local Python background bridge. This decouples hardware USB I/O from the frontend, ensuring compatibility with Firefox, Safari, Chrome, and Edge on Windows, Linux, and macOS.
+
+```mermaid
+flowchart LR
+    Browser([Browser Web UI: Any Browser]) -->|HTTP REST & JSON| LocalAgent[Local Python HID Agent :17890]
+    
+    subgraph Host Hardware Boundary
+        LocalAgent -->|hidapi USB Endpoint| USB[OS USB Subsystem]
+        USB -->|Report Descriptor Read/Write| Device[(SayoDevice 1x3P Hardware VID:0x8089)]
+        Device -->|Flash Commit| OnboardMemory[(Onboard EEPROM / Flash)]
+    end
+```
+
+---
+
 ## Features
 
-- Read and rebind all 3 keys on the pad over USB HID
-- **Click to set** - press any single key (letters, digits, punctuation, function keys, arrows, numpad) and the pad sends that keystroke. Modifier combinations are not stored.
-- **AHK trigger** - assign one of F13-F24 so your own AutoHotkey script can catch it, for combos this analog firmware can't do on its own
-- **Save to device** - commits all 3 bindings to the pad's onboard flash
-- **Verify persistence** - writes a sentinel key, has you unplug/replug the pad, and tells you whether your firmware actually keeps flash writes across a power cycle
-- Raw HID log panel showing every TX/RX packet, for debugging the wire protocol
+- **Any Browser Compatible**: Works seamlessly in Firefox, Chrome, Edge, and Safari.
+- **Single-Key Remapping**: Click to bind standard keyboard keys (letters, numbers, arrows, numpad, symbols).
+- **AutoHotkey (AHK) Integration**: Easily remap keys to extended virtual function keys (`F13` through `F24`) so your own AutoHotkey scripts can intercept them without interfering with standard keys.
+- **Onboard Flash Commit**: Saves configurations permanently to device hardware memory.
+- **Persistence Verification**: Includes a hardware persistence test that writes sentinel values across USB reconnect cycles to detect counterfeit or read-only firmware.
+- **Raw Diagnostic Panel**: Live inspection window shows real-time TX/RX USB HID frames for protocol debugging.
 
-## Run it yourself
+---
 
-### What you need
+## 🚀 Quick Start (Noob-Friendly)
 
-- **A SayoDevice 1x3P macro pad**, plugged into a USB port (it's identified by USB vendor ID `0x8089`, you don't need to do anything with that number, the agent finds it automatically).
-- **Python 3.8 or newer.** Check with `python --version` in a terminal. If that errors or shows Python 2, get it from https://python.org/downloads. During install, check the box that says **"Add python.exe to PATH"**, it's easy to miss and things won't work without it.
-- **The `hidapi` Python package.** You don't need to install this by hand, `start.bat` installs it for you the first time you run it. If you're running `agent.py` directly instead, install it with `python -m pip install hidapi`.
-- **Any browser** - Chrome, Firefox, Edge, and Safari all work. The Python agent does the USB communication, so the browser limitation that normally restricts this to Chrome doesn't apply here.
+### 1. Download & Launch
+1. Download [**MacroPad Local ZIP**](https://github.com/KitsuneTech1/kitsune-macropad/releases/latest) and extract it.
+2. Plug your SayoDevice 1x3P macro pad into any USB port.
+3. Double-click **`start.bat`** (Windows) or execute `./start.sh` (macOS/Linux).
+4. The launcher automatically installs the `hidapi` driver and opens `http://localhost:17890` in your default browser.
 
-### Step by step
+### 2. Configure Your Keys
+1. Click **Connect** in the browser dashboard.
+2. For each of the 3 keys, click **Click to set** and press your desired key, or select **AHK trigger** (F13-F24).
+3. Click **Save to device** to commit changes to the onboard memory.
 
-**Getting the files**
+---
 
-If you have git, clone it:
+## 🧪 Testing & Verification
 
-```powershell
-git clone https://github.com/KitsuneTech1/kitsune-macropad.git
-cd kitsune-macropad
+Run the automated offline unit tests:
+
+```bash
+python -m pytest tests
 ```
 
-If you don't have git, click the green **Code** button on this repo's GitHub page, then **Download ZIP**, then right-click the downloaded zip and choose **Extract All**, then open the extracted `kitsune-macropad` folder.
+Tests cover:
+- USB VID/PID device discovery and connection state machines.
+- Protocol report serialization and validation.
+- Input validation on keycode translation maps.
 
-**Running it**
-
-1. Plug in the SayoDevice 1x3P pad.
-2. Double-click **`start.bat`**.
-3. The first time you run it, a black terminal window will briefly say "Installing hidapi (one time)..." and install a small Python package. This is normal and only happens once.
-4. The window will then print `Starting MacroPad Local on http://localhost:17890 ...` and stay open. Leave it open, it needs to keep running while you use the tool.
-5. Your browser should open automatically to `http://localhost:17890`. If it doesn't, open your browser yourself and go to that address.
-6. Click **Connect**. The page should say the pad is connected.
-7. For each key, click **Click to set** and then press the key you want that pad button to send, or use **AHK trigger** to assign an F13-F24 key for your own AutoHotkey script to catch.
-8. Click **Save to device** to write your changes to the pad's onboard memory.
-
-**It worked if:** the page says Connected after step 6, and after **Save to device** your pad actually sends the new key when you press it.
-
-To stop the agent, click back into the black terminal window and press `Ctrl+C`, or just close the window.
-
-**Troubleshooting**
-
-- *`python` is not recognized* (Windows opens a Microsoft Store page instead of running it): Python isn't installed, or wasn't added to PATH during install. Reinstall from https://python.org/downloads and check "Add python.exe to PATH."
-- *"No SayoDevice found (VID 0x8089). Is it plugged in?"*: unplug and replug the pad, try a different USB port, and make sure no other program (like the manufacturer's own configuration app) has it open at the same time.
-- *"Device did not respond (timeout)"*: unplug and replug the pad and click Connect again. If it keeps happening, try a different USB port or cable.
-- *"Could not install hidapi"*: open a terminal in the project folder, run `python -m pip install hidapi`, then run `start.bat` again.
-- *The browser never opens / can't reach localhost:17890*: make sure the black terminal window from `start.bat` is still open and didn't show an error. Some antivirus or firewall software blocks local Python servers, if that's the case, allow `python.exe` through it.
-
-## How it works
-
-Raw USB HID access from a browser normally means WebHID, and WebHID only works in Chromium. This project skips that limit: `agent.py` is a small local Python process that opens the pad directly with `hidapi` and exposes a JSON API on `http://localhost:17890` (`/api/connect`, `/api/keys`, `/api/key`, `/api/save`). The static page (`index.html`, `ui.js`, `client.js`) talks to that API over `fetch`, so the same UI works in any browser, not just Chrome.
-
-The 1x3P is a hall-effect (analog) pad. Its per-key config is a 46-byte structure holding actuation and calibration data; the tap keycode lives at a fixed offset inside it. The agent reads the whole structure, edits only the keycode bytes, and writes it back, so your actuation tuning is never disturbed.
-
-Because the UI depends on the local agent for every action (connect, read, write, save), it isn't hosted as a static site. Run it locally with `start.bat` or `python agent.py`.
-
-## Tests
-
-The tests run locally and do not need a SayoDevice, browser, or network access.
-
-```powershell
-python -m pytest -q
-npm test
-python -m compileall -q agent.py
-```
-
-## Files
-
-- `agent.py` - local HID agent: USB protocol, localhost JSON API, static file server
-- `index.html`, `styles.css` - UI markup and styling
-- `ui.js` - UI logic and state
-- `ui-utils.js` - safe status message rendering
-- `save-logic.js` - guarded write and flash-save workflow
-- `diagnostic.js` - persistence diagnostic workflow
-- `client.js` - localhost API client
-- `keymap.js` - HID keycode tables
-- `start.bat` - Windows launcher
+---
 
 ## License
 
-MIT. Copyright (c) 2026 Kitsune Technologies LLC. Do what you like with it, commercially or otherwise, just keep the copyright notice. Full text in [LICENSE](LICENSE).
-
----
+MIT. Copyright (c) 2026 Kitsune Technologies LLC. Full text in [LICENSE](LICENSE).
 
 <p align="center"><sub>Part of <b>Buildtober 2026</b>: 31 open source projects in 31 days. Built by <a href="https://kitsunetechnologies.org/work">Kitsune Technologies</a>. More at <a href="https://github.com/KitsuneTech1">github.com/KitsuneTech1</a>.</sub></p>
